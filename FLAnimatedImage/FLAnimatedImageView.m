@@ -19,7 +19,6 @@
 @end
 #endif
 
-static BOOL isAtLeastIOS10;
 
 @interface FLAnimatedImageView ()
 
@@ -28,7 +27,6 @@ static BOOL isAtLeastIOS10;
 @property (nonatomic, assign, readwrite) NSUInteger currentFrameIndex;
 
 @property (nonatomic, assign) NSUInteger loopCountdown;
-@property (nonatomic, assign, readonly) NSTimeInterval linkDelta;
 @property (nonatomic, assign) NSTimeInterval accumulator;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 
@@ -88,14 +86,9 @@ static BOOL isAtLeastIOS10;
 
 - (void)commonInit
 {
-    isAtLeastIOS10 = [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10,0,0}];
     self.runLoopMode = [[self class] defaultRunLoopMode];
 }
 
-- (NSTimeInterval)linkDelta
-{
-    return isAtLeastIOS10 ? self.displayLink.duration : self.displayLink.duration * self.displayLink.frameInterval;
-}
 
 #pragma mark - Accessors
 #pragma mark Public
@@ -389,7 +382,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
                 self.needsDisplayWhenImageBecomesAvailable = NO;
             }
             
-            self.accumulator += self.linkDelta;
+            self.accumulator += displayLink.duration * displayLink.frameInterval;
             
             // While-loop first inspired by & good Karma to: https://github.com/ondalabs/OLImageView/blob/master/OLImageView.m
             while (self.accumulator >= delayTime) {
